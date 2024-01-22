@@ -4,7 +4,7 @@ import { IsString } from "class-validator";
 export class UpdateArticleDto {
     @IsString()
     @ApiProperty({ required: false })
-    name: string;
+    title: string;
 
     @IsString()
     @ApiProperty({ required: false })

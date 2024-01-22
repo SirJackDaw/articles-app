@@ -5,7 +5,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 @Entity()
 export class Article extends AbstractEntity {
     @Column()
-    name: string;
+    title: string;
 
     @Column()
     description: string;
