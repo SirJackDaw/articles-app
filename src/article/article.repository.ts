@@ -5,7 +5,9 @@ import { Article } from "./article.entity";
 import { FindManyQuery } from "./dto/findManyQuery.dto";
 import { UpdateArticleDto } from "./dto/updateArticle.dto";
 import { getDateTimezone } from "src/helpers/dateOperations";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class ArticleRepository extends AbstractRepository<Article> {
   constructor(@InjectRepository(Article) articleRepository: Repository<Article>) {
     super(articleRepository);
