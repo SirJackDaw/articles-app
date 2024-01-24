@@ -10,7 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         type: 'postgres',
         url: configService.get('POSTGRES_URI'),
         entities: ["dist/**/*.entity{.ts,.js}"],
-        synchronize: true,
         // migrations: [/*...*/],
         // migrationsTableName: "custom_migration_table",
       }),

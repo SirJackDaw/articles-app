@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build
 
+# RUN npm run typeorm:run-migrations
+
 FROM node:alpine as production
 
 ARG NODE_ENV=production
