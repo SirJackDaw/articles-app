@@ -6,6 +6,8 @@ import { LoginDto } from './dto/login.dto';
 import { AccessTokenGuard } from './guards/accessToken.guard';
 import { CurrentUser } from 'src/decorators/currentUser.decorator';
 import { JwtPayload } from 'src/types/jwtPayload';
+import { TokensResponse } from './dto/tokensResponse.dto';
+import { Refresh } from './dto/refresh.dto';
 
 @ApiBearerAuth()
 @Controller('v1/auth')
@@ -20,7 +22,7 @@ export class AuthController {
 
   @Post('login')
   @ApiBody({ type: LoginDto})
-  @ApiResponse({status: 200, description: 'Login success', type: ()=> ({ accessToken: String, refreshToken: String })})
+  @ApiResponse({ status: 200, description: 'Login success', type: TokensResponse})
   async login(@Body() dto: LoginDto){
     return this.authService.login(dto)
   }
@@ -34,8 +36,8 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @ApiBody({ type: ()=> ({ token: String })})
-  @ApiResponse({ status: 200, description: 'Refresh success', type: ()=> ({ accessToken: String, refreshToken: String }) })
+  @ApiBody({ type: Refresh })
+  @ApiResponse({ status: 200, description: 'Refresh success', type: TokensResponse })
   async refresh(@Body() token: { token: string }) {
     return this.authService.refreshToken(token.token)
   }
