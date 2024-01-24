@@ -5,6 +5,6 @@ import { LoginDto } from "./login.dto";
 export class CreateUserDto extends LoginDto {
     @IsString()
     @IsNotEmpty()
-    @ApiProperty()
+    @ApiProperty({default: 'name'})
     name: string;
 }

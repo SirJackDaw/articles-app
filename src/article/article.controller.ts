@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { CreateArticleDto } from './dto/createArticle.dto';
 import { Article } from './article.entity';
@@ -8,8 +8,9 @@ import { JwtPayload } from 'src/types/jwtPayload';
 import { ArticleService } from './article.service';
 import { UpdateArticleDto } from './dto/updateArticle.dto';
 import { FindManyQuery } from './dto/findManyQuery.dto';
-import { CACHE_MANAGER, CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { ArticleCacheInterceptor } from 'src/interceptors/cache.interceptor';
 
 @ApiBearerAuth()
 @Controller('v1/articles')
@@ -27,18 +28,17 @@ export class ArticleController {
     }
 
     @Get()
-    @UseInterceptors(CacheInterceptor)
-    @CacheTTL(20)
-    @CacheKey('articles')
+    //стандартные средства не позволяют установить префикс для ключа, поэтому используем кастомный интерсептор
+    @UseInterceptors(ArticleCacheInterceptor)
     // @ApiQuery({ type: FindManyQuery })//дублирует документацию
-    findArticles(@Query() query: FindManyQuery) {
+    async findArticles(@Query() query: FindManyQuery) {
         return this.articleService.findArticles(query)
     }
 
     @Get(':id')
+    @UseInterceptors(ArticleCacheInterceptor)
     @ApiParam({ name: 'id', type: String })
     findArticle(@Param('id') id: string) {
-        console.log('no cache')
         return this.articleService.findById(id)
     }
 
@@ -48,7 +48,7 @@ export class ArticleController {
     @ApiBody({ type: UpdateArticleDto })
     update(@Param('id') id: string, @Body() dto, @CurrentUser() user: JwtPayload) {
         return this.articleService.update(id, user.id, dto).then(result=> {
-            this.cacheManager.del('articles').then(()=>console.log('cache deleted'))
+            this.cacheManager.store.keys('articles_*').then(keys => keys.forEach(key => this.cacheManager.del(key)))
             return result
         })
     }
@@ -58,7 +58,7 @@ export class ArticleController {
     @ApiParam({ name: 'id', type: String })
     delete(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
         return this.articleService.delete(id, user.id).then(_ => {
-            this.cacheManager.del('articles').then(()=>console.log('cache deleted'))
+            this.cacheManager.store.keys('articles_*').then(keys => this.cacheManager.store.mdel(...keys))
         })
     }
 }

@@ -60,7 +60,7 @@ export class AuthService {
       ),
     ]);
 
-    this.cacheManager.set(payload.id, refreshToken, +this.configService.get<string>('REFRESH_EXPIRY_IN_SECONDS')*1000)
+    this.cacheManager.set(payload.id, refreshToken, { ttl: +this.configService.get<string>('REFRESH_EXPIRY_IN_SECONDS') } as any)
 
     return {
       accessToken,
