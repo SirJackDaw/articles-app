@@ -58,7 +58,7 @@ export class ArticleController {
     @ApiParam({ name: 'id', type: String })
     delete(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
         return this.articleService.delete(id, user.id).then(_ => {
-            this.cacheManager.store.keys('articles_*').then(keys => this.cacheManager.store.mdel(...keys))
+            this.cacheManager.store.keys('articles_*').then(keys => keys.forEach(key => this.cacheManager.del(key)))
         })
     }
 }
