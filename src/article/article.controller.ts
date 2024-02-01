@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { CreateArticleDto } from './dto/createArticle.dto';
@@ -38,7 +38,7 @@ export class ArticleController {
     @Get(':id')
     @UseInterceptors(ArticleCacheInterceptor)
     @ApiParam({ name: 'id', type: String })
-    findArticle(@Param('id') id: string) {
+    findArticle(@Param('id', ParseUUIDPipe) id: string) {
         return this.articleService.findById(id)
     }
 
@@ -46,7 +46,7 @@ export class ArticleController {
     @Patch(':id')
     @ApiParam({ name: 'id', type: String })
     @ApiBody({ type: UpdateArticleDto })
-    update(@Param('id') id: string, @Body() dto, @CurrentUser() user: JwtPayload) {
+    update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateArticleDto, @CurrentUser() user: JwtPayload) {
         return this.articleService.update(id, user.id, dto).then(result=> {
             this.cacheManager.store.keys('articles_*').then(keys => keys.forEach(key => this.cacheManager.del(key)))
             return result
@@ -56,7 +56,7 @@ export class ArticleController {
     @UseGuards(AccessTokenGuard)
     @Delete(':id')
     @ApiParam({ name: 'id', type: String })
-    delete(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    delete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
         return this.articleService.delete(id, user.id).then(_ => {
             this.cacheManager.store.keys('articles_*').then(keys => keys.forEach(key => this.cacheManager.del(key)))
         })
