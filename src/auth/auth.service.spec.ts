@@ -71,7 +71,7 @@ describe ('AuthService', () => {
 
         expect(mockUsersService.validateUser).toHaveBeenCalledWith(dto.email, dto.password)
         expect(mockJwtService.signAsync).toHaveBeenCalledTimes(2)
-        expect(mockCache.set).toHaveBeenCalledWith('1', correctToken, expect.any(Number))
+        expect(mockCache.set).toHaveBeenCalledWith('1', correctToken, expect.objectContaining({ttl: expect.any(Number)}))
     });
 
     it ('should return refresh tokens', async () => {
@@ -84,7 +84,7 @@ describe ('AuthService', () => {
         expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(correctToken, {secret: expect.any(String)})
         expect(mockCache.get).toHaveBeenCalledWith('1')
         expect(mockJwtService.signAsync).toHaveBeenCalledTimes(2)
-        expect(mockCache.set).toHaveBeenCalledWith('1', correctToken, expect.any(Number))
+        expect(mockCache.set).toHaveBeenCalledWith('1', correctToken, expect.objectContaining({ttl: expect.any(Number)}))
     });
 
     it ('should throw Token Error', async () => {
